@@ -4,16 +4,17 @@ import com.expensivebot.eventservice.dto.event.TelegramCommandEvent;
 import com.expensivebot.eventservice.dto.telegram.TelegramMessageDTO;
 import com.expensivebot.eventservice.dto.telegram.TelegramUpdateDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 public class TelegramWebhookService {
 
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    @Autowired
+    KafkaTemplate<String, Object> kafkaTemplate;
 
-    private static final String TOPIC_TELEGRAM_COMMAND = "telegram.command";
+    private static final String TOPIC_TELEGRAM_COMMAND = "expense-events";
 
     public void process(TelegramUpdateDTO update) {
 
@@ -33,7 +34,7 @@ public class TelegramWebhookService {
                 .userId(message.getFrom().getId())
                 .messageId(message.getMessageId())
                 .text(message.getText())
-                .command(message.getText().split(" ")[0]) // "/gasto"
+                .command(message.getText().split(" ")[0])
                 .build();
 
         kafkaTemplate.send(TOPIC_TELEGRAM_COMMAND, event);
